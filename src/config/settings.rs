@@ -1,16 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq, Eq)]
-pub struct ClippyCompliance(pub bool);
-
-#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq, Eq)]
-pub struct CrateRootCheck(pub bool);
-
 #[derive(Debug, Serialize, Deserialize, Default)]
-pub struct GrumpyConfig {
+pub struct LintSettings {
     #[serde(rename = "ignore-clippy-compliance")]
-    pub clippy_compliance: ClippyCompliance,
+    pub is_clippy_ignored: bool,
 
     #[serde(rename = "ignore-prohibited-crate-root-files")]
-    pub crate_root_check: CrateRootCheck,
+    pub is_crate_root_check_ignored: bool,
 }

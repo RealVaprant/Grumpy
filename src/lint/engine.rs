@@ -1,33 +1,31 @@
-use colored::*;
 use std::time::Instant;
+use colored::*;
 
-use crate::config::error::ConfigError;
-use crate::config::settings::GrumpyConfig;
-use crate::lint::checks::ComplianceCheck;
+use crate::config::settings::LintSettings;
+use crate::lint::violation::ComplianceViolation;
 use crate::lint::checks::clippy::ClippyCheck;
 use crate::lint::checks::crate_root::CrateRootCheck;
-use crate::lint::violation::ComplianceViolation;
+use crate::lint::checks::ComplianceCheck;
+use crate::config::error::ConfigError;
 
 pub struct LintEngine;
 
 impl LintEngine {
-    pub fn run_checks(
-        config: &GrumpyConfig,
-        package_name: &str,
-        package_version: &str,
-    ) -> Result<Vec<Box<dyn ComplianceViolation>>, ConfigError> {
+    pub fn run_checks(config: &LintSettings, package_name: &str, package_version: &str) -> Result<Vec<Box<dyn ComplianceViolation>>, ConfigError> {
         let start_time = Instant::now();
-
+        
         println!(
-            "{:>12} {} v{} ({})",
-            "Checking".green().bold(),
-            package_name,
-            package_version,
+            "{:>12} {} v{} ({})", 
+            "Checking".green().bold(), 
+            package_name, 
+            package_version, 
             std::env::current_dir()?.display()
         );
 
-        let checks: Vec<Box<dyn ComplianceCheck>> =
-            vec![Box::new(CrateRootCheck), Box::new(ClippyCheck)];
+        let checks: Vec<Box<dyn ComplianceCheck>> = vec![
+            Box::new(CrateRootCheck),
+            Box::new(ClippyCheck),
+        ];
 
         let mut found_violations = Vec::new();
 
@@ -40,7 +38,7 @@ impl LintEngine {
         if found_violations.is_empty() {
             let duration_seconds = start_time.elapsed().as_secs_f64();
             println!(
-                "{:>12} checking target(s) in {:.2}s",
+                "{:>12} checking target(s) in {:.2}s", 
                 "Finished".green().bold(),
                 duration_seconds
             );

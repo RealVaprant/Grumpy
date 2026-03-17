@@ -1,19 +1,16 @@
-use crate::config::error::ConfigError;
-use crate::config::settings::GrumpyConfig;
-use crate::lint::checks::ComplianceCheck;
-use crate::lint::violation::ComplianceViolation;
-use colored::*;
 use std::fs;
 use std::path::Path;
+use colored::*;
+use crate::config::settings::LintSettings;
+use crate::lint::checks::ComplianceCheck;
+use crate::lint::violation::ComplianceViolation;
+use crate::config::error::ConfigError;
 
 pub struct CrateRootCheck;
 
 impl ComplianceCheck for CrateRootCheck {
-    fn run(
-        &self,
-        config: &GrumpyConfig,
-    ) -> Result<Option<Box<dyn ComplianceViolation>>, ConfigError> {
-        if config.crate_root_check.0 {
+    fn run(&self, config: &LintSettings) -> Result<Option<Box<dyn ComplianceViolation>>, ConfigError> {
+        if config.is_crate_root_check_ignored {
             return Ok(None);
         }
 
@@ -29,16 +26,13 @@ impl ComplianceCheck for CrateRootCheck {
         for entry in fs::read_dir(source_path)? {
             let entry = entry?;
             let path = entry.path();
-
+            
             let is_rust_file = path.extension().and_then(|ext| ext.to_str()) == Some("rs");
             if !is_rust_file {
                 continue;
             }
 
-            let file_name = path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .unwrap_or("");
+            let file_name = path.file_name().and_then(|name| name.to_str()).unwrap_or("");
             if !allowed_root_files.contains(&file_name) {
                 prohibited_files.push(file_name.to_string());
             }
@@ -62,11 +56,7 @@ impl ComplianceViolation for CrateRootViolation {
         let prefix = format!("{}{}", error_label, ":".white()).bold();
 
         for prohibited_file in &self.prohibited_files {
-            println!(
-                "{} {}",
-                prefix,
-                "found prohibited file in crate root directory".bold()
-            );
+            println!("{} {}", prefix, "found prohibited file in crate root directory".bold());
             println!("  {} src/{}", "-->".blue().bold(), prohibited_file);
             println!("   {}", "|".blue().bold());
             println!(

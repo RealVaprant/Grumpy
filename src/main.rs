@@ -39,17 +39,13 @@ fn main() {
         violation.report();
     }
 
-    let error_label = if violation_count == 1 {
-        "error"
-    } else {
-        "errors"
-    };
+    let error_label = if violation_count == 1 { "error" } else { "errors" };
     println!(
-        "{}: {} (bin \"{}\") generated {} {}",
-        "error".red().bold(),
-        package_name,
-        package_name,
-        violation_count,
+        "{}: {} (bin \"{}\") generated {} {}", 
+        "error".red().bold(), 
+        package_name, 
+        package_name, 
+        violation_count, 
         error_label
     );
 }

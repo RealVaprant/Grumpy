@@ -1,4 +1,4 @@
-mod clippy_compliance;
-mod clippy_violations;
+pub mod project_setup;
 mod crate_root_violations;
-mod project_setup;
+mod clippy_violations;
+mod clippy_compliance;
