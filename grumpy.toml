@@ -1,2 +1,2 @@
 ignore-clippy-compliance = false
-ignore-prohibited-crate-root-files = false
+ignore-crate-root-check = false
