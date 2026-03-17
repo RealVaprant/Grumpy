@@ -1,7 +1,7 @@
-use std::fs;
-use std::path::Path;
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
+use std::fs;
+use std::path::Path;
 
 pub struct ConfigLoader;
 
@@ -15,11 +15,18 @@ impl ConfigLoader {
         }
 
         let content = fs::read_to_string(Self::CARGO_PATH)?;
-        let value: serde_json::Value = toml::from_str(&content).map_err(|_| ConfigError::MissingCargoToml)?;
-        
-        let name = value["package"]["name"].as_str().unwrap_or("unknown").to_string();
-        let version = value["package"]["version"].as_str().unwrap_or("0.0.0").to_string();
-        
+        let value: serde_json::Value =
+            toml::from_str(&content).map_err(|_| ConfigError::MissingCargoToml)?;
+
+        let name = value["package"]["name"]
+            .as_str()
+            .unwrap_or("unknown")
+            .to_string();
+        let version = value["package"]["version"]
+            .as_str()
+            .unwrap_or("0.0.0")
+            .to_string();
+
         Ok((name, version))
     }
 
@@ -33,7 +40,10 @@ impl ConfigLoader {
         match toml::from_str::<LintSettings>(&content) {
             Ok(config) => Ok(config),
             Err(_) => {
-                eprintln!("Warning: Configuration in {} is invalid or outdated. Resetting...", Self::GRUMPY_PATH);
+                eprintln!(
+                    "Warning: Configuration in {} is invalid or outdated. Resetting...",
+                    Self::GRUMPY_PATH
+                );
                 Self::create_default_config(path)
             }
         }

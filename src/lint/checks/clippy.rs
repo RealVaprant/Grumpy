@@ -1,14 +1,17 @@
-use std::process::{Command, Stdio};
-use colored::*;
+use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
 use crate::lint::checks::ComplianceCheck;
 use crate::lint::violation::ComplianceViolation;
-use crate::config::error::ConfigError;
+use colored::*;
+use std::process::{Command, Stdio};
 
 pub struct ClippyCheck;
 
 impl ComplianceCheck for ClippyCheck {
-    fn run(&self, config: &LintSettings) -> Result<Option<Box<dyn ComplianceViolation>>, ConfigError> {
+    fn run(
+        &self,
+        config: &LintSettings,
+    ) -> Result<Option<Box<dyn ComplianceViolation>>, ConfigError> {
         if config.is_clippy_ignored {
             return Ok(None);
         }
@@ -35,9 +38,17 @@ impl ComplianceViolation for ClippyCheck {
         let error_label = "error".red();
         let prefix = format!("{}{}", error_label, ":".white()).bold();
 
-        println!("{} {}", prefix, "clippy checks failed with warnings or errors".bold());
+        println!(
+            "{} {}",
+            prefix,
+            "clippy checks failed with warnings or errors".bold()
+        );
         println!("   {}", "|".blue().bold());
-        println!("   {} {}", "=".blue().bold(), "help: Run 'cargo clippy' to see the specific warnings/errors.".bold());
+        println!(
+            "   {} {}",
+            "=".blue().bold(),
+            "help: Run 'cargo clippy' to see the specific warnings/errors.".bold()
+        );
         println!();
     }
 }
