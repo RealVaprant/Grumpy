@@ -1,3 +1,4 @@
 ignore-clippy-compliance = false
 ignore-prohibited-crate-root-files = false
 ignore-mod-logic = false
+ignore-mod-definition = false

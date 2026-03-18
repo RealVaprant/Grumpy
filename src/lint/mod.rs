@@ -7,5 +7,3 @@ pub mod violation;
 
 #[cfg(test)]
 mod tests;
-
-struct Okay;

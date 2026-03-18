@@ -5,6 +5,8 @@ use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
 use crate::lint::checks::clippy::ClippyCheck;
 use crate::lint::checks::crate_root::CrateRootCheck;
+use crate::lint::checks::mod_definition::ModDefinitionCheck;
+use crate::lint::checks::mod_logic::ModLogicCheck;
 use crate::lint::compliance_check::ComplianceCheck;
 use crate::lint::violation::ComplianceViolation;
 
@@ -29,7 +31,8 @@ impl LintEngine {
         let checks: Vec<Box<dyn ComplianceCheck>> = vec![
             Box::new(CrateRootCheck::default()),
             Box::new(ClippyCheck),
-            Box::new(crate::lint::checks::mod_logic::ModLogicCheck::default()),
+            Box::new(ModLogicCheck::default()),
+            Box::new(ModDefinitionCheck::default()),
         ];
 
         let mut found_violations = Vec::new();

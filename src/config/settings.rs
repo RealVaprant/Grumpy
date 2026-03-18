@@ -10,4 +10,7 @@ pub struct LintSettings {
 
     #[serde(rename = "ignore-mod-logic")]
     pub is_mod_logic_ignored: bool,
+
+    #[serde(rename = "ignore-mod-definition")]
+    pub is_mod_definition_ignored: bool,
 }
