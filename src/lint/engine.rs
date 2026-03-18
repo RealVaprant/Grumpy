@@ -27,7 +27,7 @@ impl LintEngine {
         );
 
         let checks: Vec<Box<dyn ComplianceCheck>> =
-            vec![Box::new(CrateRootCheck), Box::new(ClippyCheck)];
+            vec![Box::new(CrateRootCheck::default()), Box::new(ClippyCheck)];
 
         let mut found_violations = Vec::new();
 

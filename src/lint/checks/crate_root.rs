@@ -6,7 +6,10 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
-pub struct CrateRootCheck;
+#[derive(Default)]
+pub struct CrateRootCheck {
+    pub prohibited_files: Vec<String>,
+}
 
 impl ComplianceCheck for CrateRootCheck {
     fn run(
@@ -48,15 +51,11 @@ impl ComplianceCheck for CrateRootCheck {
             return Ok(None);
         }
 
-        Ok(Some(Box::new(CrateRootViolation { prohibited_files })))
+        Ok(Some(Box::new(CrateRootCheck { prohibited_files })))
     }
 }
 
-struct CrateRootViolation {
-    prohibited_files: Vec<String>,
-}
-
-impl ComplianceViolation for CrateRootViolation {
+impl ComplianceViolation for CrateRootCheck {
     fn report(&self) {
         let error_label = "error".red();
         let prefix = format!("{}{}", error_label, ":".white()).bold();
@@ -70,8 +69,8 @@ impl ComplianceViolation for CrateRootViolation {
             println!("  {} src/{}", "-->".blue().bold(), prohibited_file);
             println!("   {}", "|".blue().bold());
             println!(
-                "   {} {}", 
-                "=".blue().bold(), 
+                "   {} {}",
+                "=".blue().bold(),
                 "help: Only main.rs, lib.rs, and build.rs are allowed in the src/ directory. Move this file to a subdirectory.".bold()
             );
             println!();
