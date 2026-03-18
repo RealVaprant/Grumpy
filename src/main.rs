@@ -3,6 +3,7 @@ mod lint;
 
 use crate::config::manager::ConfigLoader;
 use crate::lint::engine::LintEngine;
+use crate::lint::reporter::Reporter;
 use colored::*;
 
 fn main() {
@@ -36,7 +37,8 @@ fn main() {
 
     let violation_count = violations.len();
     for violation in &violations {
-        violation.report();
+        let diagnostic = violation.to_diagnostic();
+        Reporter::report(&diagnostic);
     }
 
     let error_label = if violation_count == 1 {

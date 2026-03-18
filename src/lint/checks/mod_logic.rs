@@ -1,8 +1,8 @@
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
 use crate::lint::compliance_check::ComplianceCheck;
+use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::violation::ComplianceViolation;
-use colored::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -113,46 +113,27 @@ impl ModLogicCheck {
 }
 
 impl ComplianceViolation for ModLogicCheck {
-    fn report(&self) {
-        let error_label = "error".red();
-        let prefix = format!("{}{}", error_label, ":".white()).bold();
-
+    fn to_diagnostic(&self) -> Diagnostic {
         let title = match self.prohibited_keyword.as_str() {
             "struct" | "trait" | "enum" => format!("{} found in mod.rs", self.prohibited_keyword),
             _ => "logic found in mod.rs".to_string(),
         };
 
-        let line_num_str = self.line_number.to_string();
-        let padding_width = line_num_str.len();
-        let gutter_space = " ".repeat(padding_width);
-        let gutter = format!("{} |", gutter_space).blue().bold();
+        let column_number = self
+            .line_content
+            .find(&self.prohibited_keyword)
+            .unwrap_or(0)
+            + 1;
 
-        println!("{} {}", prefix, title.bold());
-        println!(
-            "{}{} {}:{}:{}",
-            " ".repeat(padding_width.saturating_sub(1)),
-            "-->".blue().bold(),
-            self.file_path.display(),
-            self.line_number,
-            self.line_content
-                .find(&self.prohibited_keyword)
-                .unwrap_or(0)
-                + 1
-        );
-        println!("{}", gutter);
-        println!(
-            "{} {} {}",
-            line_num_str.blue().bold(),
-            "|".blue().bold(),
-            self.line_content
-        );
-        println!("{}", gutter);
-        println!(
-            "{} {} {}",
-            gutter_space,
-            "=".blue().bold(),
-            "help: Logic isn't allowed in mod.rs files, move it somewhere else.".bold()
-        );
-        println!();
+        Diagnostic {
+            title,
+            help_text: "Logic isn't allowed in mod.rs files, move it somewhere else.".to_string(),
+            location: Some(Location {
+                file_path: self.file_path.clone(),
+                line_number: Some(self.line_number),
+                column_number: Some(column_number),
+                snippet: Some(self.line_content.clone()),
+            }),
+        }
     }
 }

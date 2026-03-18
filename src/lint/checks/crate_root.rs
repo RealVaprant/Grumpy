@@ -1,10 +1,10 @@
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
 use crate::lint::compliance_check::ComplianceCheck;
+use crate::lint::diagnostic::{Diagnostic, Location};
 use crate::lint::violation::ComplianceViolation;
-use colored::*;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Default)]
 pub struct CrateRootCheck {
@@ -52,22 +52,16 @@ impl ComplianceCheck for CrateRootCheck {
 }
 
 impl ComplianceViolation for CrateRootCheck {
-    fn report(&self) {
-        let error_label = "error".red();
-        let prefix = format!("{}{}", error_label, ":".white()).bold();
-
-        println!(
-            "{} {}",
-            prefix,
-            "found prohibited file in crate root directory".bold()
-        );
-        println!("  {} src/{}", "-->".blue().bold(), self.prohibited_file);
-        println!("   {}", "|".blue().bold());
-        println!(
-            "   {} {}", 
-            "=".blue().bold(), 
-            "help: Only main.rs, lib.rs, and build.rs are allowed in the src/ directory. Move this file to a subdirectory.".bold()
-        );
-        println!();
+    fn to_diagnostic(&self) -> Diagnostic {
+        Diagnostic {
+            title: "found prohibited file in crate root directory".to_string(),
+            help_text: "Only main.rs, lib.rs, and build.rs are allowed in the src/ directory. Move this file to a subdirectory.".to_string(),
+            location: Some(Location {
+                file_path: PathBuf::from("src").join(&self.prohibited_file),
+                line_number: None,
+                column_number: None,
+                snippet: None,
+            }),
+        }
     }
 }

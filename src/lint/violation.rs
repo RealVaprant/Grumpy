@@ -1,3 +1,5 @@
+use crate::lint::diagnostic::Diagnostic;
+
 pub trait ComplianceViolation {
-    fn report(&self);
+    fn to_diagnostic(&self) -> Diagnostic;
 }

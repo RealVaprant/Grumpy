@@ -1,8 +1,8 @@
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
 use crate::lint::compliance_check::ComplianceCheck;
+use crate::lint::diagnostic::Diagnostic;
 use crate::lint::violation::ComplianceViolation;
-use colored::*;
 use std::process::{Command, Stdio};
 
 pub struct ClippyCheck;
@@ -31,21 +31,11 @@ impl ComplianceCheck for ClippyCheck {
 }
 
 impl ComplianceViolation for ClippyCheck {
-    fn report(&self) {
-        let error_label = "error".red();
-        let prefix = format!("{}{}", error_label, ":".white()).bold();
-
-        println!(
-            "{} {}",
-            prefix,
-            "clippy checks failed with warnings or errors".bold()
-        );
-        println!("   {}", "|".blue().bold());
-        println!(
-            "   {} {}",
-            "=".blue().bold(),
-            "help: Run 'cargo clippy' to see the specific warnings/errors.".bold()
-        );
-        println!();
+    fn to_diagnostic(&self) -> Diagnostic {
+        Diagnostic {
+            title: "clippy checks failed with warnings or errors".to_string(),
+            help_text: "Run 'cargo clippy' to see the specific warnings/errors.".to_string(),
+            location: None,
+        }
     }
 }
