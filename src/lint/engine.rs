@@ -3,9 +3,9 @@ use std::time::Instant;
 
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
-use crate::lint::checks::ComplianceCheck;
 use crate::lint::checks::clippy::ClippyCheck;
 use crate::lint::checks::crate_root::CrateRootCheck;
+use crate::lint::compliance_check::ComplianceCheck;
 use crate::lint::violation::ComplianceViolation;
 
 pub struct LintEngine;
@@ -26,15 +26,16 @@ impl LintEngine {
             std::env::current_dir()?.display()
         );
 
-        let checks: Vec<Box<dyn ComplianceCheck>> =
-            vec![Box::new(CrateRootCheck::default()), Box::new(ClippyCheck)];
+        let checks: Vec<Box<dyn ComplianceCheck>> = vec![
+            Box::new(CrateRootCheck::default()),
+            Box::new(ClippyCheck),
+            Box::new(crate::lint::checks::mod_logic::ModLogicCheck::default()),
+        ];
 
         let mut found_violations = Vec::new();
 
         for check in checks {
-            if let Some(violation) = check.run(config)? {
-                found_violations.push(violation);
-            }
+            found_violations.extend(check.run(config)?);
         }
 
         if found_violations.is_empty() {

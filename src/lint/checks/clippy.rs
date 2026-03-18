@@ -1,6 +1,6 @@
 use crate::config::error::ConfigError;
 use crate::config::settings::LintSettings;
-use crate::lint::checks::ComplianceCheck;
+use crate::lint::compliance_check::ComplianceCheck;
 use crate::lint::violation::ComplianceViolation;
 use colored::*;
 use std::process::{Command, Stdio};
@@ -8,12 +8,9 @@ use std::process::{Command, Stdio};
 pub struct ClippyCheck;
 
 impl ComplianceCheck for ClippyCheck {
-    fn run(
-        &self,
-        config: &LintSettings,
-    ) -> Result<Option<Box<dyn ComplianceViolation>>, ConfigError> {
+    fn run(&self, config: &LintSettings) -> Result<Vec<Box<dyn ComplianceViolation>>, ConfigError> {
         if config.is_clippy_ignored {
-            return Ok(None);
+            return Ok(Vec::new());
         }
 
         let status = Command::new("cargo")
@@ -26,10 +23,10 @@ impl ComplianceCheck for ClippyCheck {
             .status()?;
 
         if !status.success() {
-            return Ok(Some(Box::new(ClippyCheck)));
+            return Ok(vec![Box::new(ClippyCheck)]);
         }
 
-        Ok(None)
+        Ok(Vec::new())
     }
 }
 
